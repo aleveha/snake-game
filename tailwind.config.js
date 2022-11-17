@@ -22,6 +22,14 @@ module.exports = {
 			xl: rem(1120),
 			xxl: rem(1216),
 		},
+		extend: {
+			backgroundImage: {
+				board: "url('/static/images/board-bg.png')",
+			},
+			flex: {
+				"1-0": "1 0 auto",
+			},
+		},
 	},
 	plugins: [
 		plugin(function ({ addComponents, theme }) {
