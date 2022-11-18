@@ -1,18 +1,22 @@
 import clsx from "clsx";
-import { FC, ReactNode } from "react";
+import { FC } from "react";
+import { ICONS } from "@src/components/controls/icons";
+import { Direction } from "@src/components/board/types";
 
 interface Props {
 	className?: string;
-	icon: ReactNode;
+	direction: Direction;
+	onClick?: () => void;
 }
 
-export const Button: FC<Props> = ({ className, icon }) => (
+export const Button: FC<Props> = ({ className, direction, onClick }) => (
 	<button
 		className={clsx(
 			"flex w-fit items-center justify-center rounded-3xl bg-green-600 p-4 text-white hover:bg-green-700",
 			className,
 		)}
+		onClick={onClick}
 	>
-		{icon}
+		{ICONS[direction]}
 	</button>
 );

@@ -4,9 +4,7 @@ class Document extends NextDocument {
 	public render(): JSX.Element {
 		return (
 			<Html>
-				<Head>
-					<title>Had (počítačová hra)</title>
-				</Head>
+				<Head />
 				<body>
 					<Main />
 					<NextScript />
