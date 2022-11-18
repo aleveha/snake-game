@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { Button } from "@src/components/controls/button";
 import { Direction } from "@src/components/board/types";
+import { Badge } from "@src/components/ui/badge";
 
 interface Props {
 	handleMove: (direction: Direction) => () => void;
@@ -8,14 +9,24 @@ interface Props {
 }
 
 export const Controls: FC<Props> = ({ handleMove, handleReset }) => (
-	<div className="flex w-full flex-col-reverse items-center justify-around md:flex-row">
-		<div className="mt-14 flex w-full flex-col items-center justify-center space-y-14 md:mt-0 md:w-1/2">
-			<p className="text-center">
-				Popis ovládání hry Popis ovládání hry Popis ovládání hry Popis ovládání hry Popis ovládání hry Popis
-				ovládání hry Popis ovládání hry
-			</p>
+	<div className="flex w-full flex-col-reverse justify-between md:flex-row">
+		<div className="mt-14 flex h-fit w-full flex-col items-start justify-center space-y-5 md:mt-0 md:w-1/2">
+			<div className="space-y-5">
+				<p>
+					<Badge>W | ⬆️</Badge> — posunout se nahoru
+				</p>
+				<p>
+					<Badge>️S | ⬇️</Badge> — posunout se dolu
+				</p>
+				<p>
+					<Badge>A | ⬅️</Badge> — posunout se vlevo
+				</p>
+				<p>
+					<Badge>D | ➡️</Badge> — posunout se vpravo
+				</p>
+			</div>
 			<button
-				className="rounded-3xl bg-blue-600 py-4 px-8 text-lg text-white hover:bg-blue-700"
+				className="rounded-2xl bg-blue-600 py-3 px-6 text-lg text-white hover:bg-blue-700"
 				onClick={handleReset}
 			>
 				Reset game
