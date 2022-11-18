@@ -17,14 +17,14 @@ module.exports = {
 		},
 		container: {
 			sm: "none",
-			md: rem(688),
-			lg: rem(912),
+			md: rem(700),
+			lg: rem(920),
 			xl: rem(1120),
-			xxl: rem(1216),
+			xxl: rem(1200),
 		},
 		extend: {
 			backgroundImage: {
-				board: "url('/static/images/board-bg.png')",
+				board: "url('/static/images/map.png')",
 			},
 			flex: {
 				"1-0": "1 0 auto",

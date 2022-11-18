@@ -1,5 +1,4 @@
-import { StaticImageData } from "next/image";
-import { Coordinates } from "@src/components/board/types";
+import { Coordinates, Size, SNAKE_SIZE } from "@src/components/board/types";
 
 // Board
 export function clearBoard(context: CanvasRenderingContext2D | null, height: number, width: number): void {
@@ -8,38 +7,40 @@ export function clearBoard(context: CanvasRenderingContext2D | null, height: num
 	}
 }
 
-export function drawMap(context: CanvasRenderingContext2D | null, image: StaticImageData): void {
-	if (context) {
-		const img = new Image();
-		img.src = image.src;
-		img.onload = async () => {
-			const bitmap = await createImageBitmap(img, 0, 0, image.width, image.height);
-			context.globalCompositeOperation = "destination-over";
-			context.drawImage(bitmap, -150, -60);
-		};
-	}
-}
-
 // Apple
-function randomNumber(max: number): number {
-	const random = Math.random() * (max - 20);
-	return random - (random % 20);
+function getRandomNumber(max: number): number {
+	const random = Math.random() * (max - SNAKE_SIZE);
+	return random - (random % SNAKE_SIZE);
 }
 
-export function generateRandomPosition(width: number, height: number): Coordinates {
+function getRandomCoordinates(width: number, height: number): Coordinates {
 	return {
-		x: randomNumber(width),
-		y: randomNumber(height),
+		x: getRandomNumber(width - SNAKE_SIZE),
+		y: getRandomNumber(height - SNAKE_SIZE),
 	};
+}
+
+export function generateRandomApplePosition(size: Size, snake: Coordinates[]): Coordinates {
+	let newApple = getRandomCoordinates(size.width, size.height);
+
+	while (snake.some(({ x, y }) => x === newApple.x && y === newApple.y)) {
+		newApple = getRandomCoordinates(size.width, size.height);
+	}
+
+	return newApple;
 }
 
 export function drawApple(context: CanvasRenderingContext2D | null, object: Coordinates): void {
 	if (context) {
 		context.fillStyle = "#fb7185";
 		context.strokeStyle = "gray";
-		context.fillRect(object.x + 20, object.y + 20, 20, 20);
-		context.strokeRect(object.x + 20, object.y + 20, 20, 20);
+		context.fillRect(object.x + SNAKE_SIZE, object.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
+		context.strokeRect(object.x + SNAKE_SIZE, object.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
 	}
+}
+
+export function isAppleEaten(apple: Coordinates, snakeHead: Coordinates): boolean {
+	return apple.x === snakeHead.x && apple.y === snakeHead.y;
 }
 
 // Snake
@@ -52,8 +53,8 @@ export function drawSnake(context: CanvasRenderingContext2D | null, object: Coor
 				context.fillStyle = "#a3e635";
 			}
 			context.strokeStyle = "gray";
-			context.fillRect(pos.x + 20, pos.y + 20, 20, 20);
-			context.strokeRect(pos.x + 20, pos.y + 20, 20, 20);
+			context.fillRect(pos.x + SNAKE_SIZE, pos.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
+			context.strokeRect(pos.x + SNAKE_SIZE, pos.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
 		});
 	}
 }
@@ -64,4 +65,12 @@ export function hasSnakeCollided(snake: Coordinates[]): boolean {
 			(pos: Coordinates, index: number) => pos.x === snake[0].x && pos.y === snake[0].y && index !== 0,
 		) !== -1
 	);
+}
+
+export function calculateWidth(width: number): number {
+	let newWidth = width;
+	while (newWidth % SNAKE_SIZE !== 0) {
+		newWidth -= 1;
+	}
+	return newWidth;
 }
