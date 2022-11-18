@@ -1,5 +1,5 @@
 import { Coordinates, Direction, Size, Snake, SNAKE_SIZE } from "@src/components/board/types";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { calculateWidth } from "@src/components/board/utils";
 
 export const useSnake = (size: Size) => {
@@ -91,6 +91,41 @@ export const useSnake = (size: Size) => {
 	const resetSnake = useCallback(() => {
 		setSnake({ coordinates: snakeDefaultCoordinates, direction: null, speed: 400 });
 	}, [snakeDefaultCoordinates]);
+
+	const handleKeyEvents = useCallback(
+		(event: KeyboardEvent) => {
+			switch (event.key) {
+				case "w":
+				case "ArrowUp":
+					moveSnake("up")();
+					break;
+				case "s":
+				case "ArrowDown":
+					moveSnake("down")();
+					break;
+				case "a":
+				case "ArrowLeft":
+					moveSnake("left")();
+					break;
+				case "d":
+				case "ArrowRight":
+					event.preventDefault();
+					moveSnake("right")();
+					break;
+			}
+		},
+		[moveSnake],
+	);
+
+	useEffect(() => {
+		window.addEventListener("keypress", handleKeyEvents);
+		window.addEventListener("keydown", handleKeyEvents);
+
+		return () => {
+			window.removeEventListener("keypress", handleKeyEvents);
+			window.removeEventListener("keydown", handleKeyEvents);
+		};
+	}, [handleKeyEvents]);
 
 	return [snake, moveSnake, increaseSnake, resetSnake] as const;
 };
