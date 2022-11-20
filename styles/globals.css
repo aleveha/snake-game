@@ -4,7 +4,7 @@
 
 @layer base {
     body {
-        @apply bg-amber-50 bg-opacity-70;
+        @apply text-lg;
     }
 }
 

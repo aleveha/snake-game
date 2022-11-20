@@ -13,7 +13,9 @@
 		"linebreak-style": 0,
 		"quotes": ["error", "double"],
 		"semi": ["error", "always"],
-		"@typescript-eslint/no-explicit-any": ["error"]
+		"@typescript-eslint/no-explicit-any": ["error"],
+		"react-hooks/rules-of-hooks": "error",
+		"react-hooks/exhaustive-deps": "error"
 	},
 	"extends": [
 		"eslint:recommended",

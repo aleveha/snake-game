@@ -50,43 +50,46 @@ export const useSnake = (size: Size) => {
 		[snake.direction, makeMovement],
 	);
 
-	const increaseSnake = useCallback(() => {
-		let xDiff = 0;
-		let yDiff = 0;
-		const { coordinates, direction } = snake;
+	const increaseSnake = useCallback(
+		(increaseSpeed = false) => {
+			let xDiff = 0;
+			let yDiff = 0;
+			const { coordinates, direction } = snake;
 
-		if (coordinates.length === 1) {
-			switch (direction) {
-				case "left":
-					xDiff = -SNAKE_SIZE;
-					break;
-				case "right":
-					xDiff = SNAKE_SIZE;
-					break;
-				case "up":
-					yDiff = -SNAKE_SIZE;
-					break;
-				case "down":
-					yDiff = SNAKE_SIZE;
-					break;
+			if (coordinates.length === 1) {
+				switch (direction) {
+					case "left":
+						xDiff = -SNAKE_SIZE;
+						break;
+					case "right":
+						xDiff = SNAKE_SIZE;
+						break;
+					case "up":
+						yDiff = -SNAKE_SIZE;
+						break;
+					case "down":
+						yDiff = SNAKE_SIZE;
+						break;
+				}
+			} else {
+				xDiff = coordinates[coordinates.length - 2].x - coordinates[coordinates.length - 1].x;
+				yDiff = coordinates[coordinates.length - 2].y - coordinates[coordinates.length - 1].y;
 			}
-		} else {
-			xDiff = coordinates[coordinates.length - 2].x - coordinates[coordinates.length - 1].x;
-			yDiff = coordinates[coordinates.length - 2].y - coordinates[coordinates.length - 1].y;
-		}
 
-		setSnake(prev => ({
-			...prev,
-			coordinates: [
-				...prev.coordinates,
-				{
-					x: prev.coordinates[prev.coordinates.length - 1].x - xDiff,
-					y: prev.coordinates[prev.coordinates.length - 1].y - yDiff,
-				},
-			],
-			speed: prev.speed > 10 ? prev.speed - 10 : prev.speed,
-		}));
-	}, [snake]);
+			setSnake(prev => ({
+				...prev,
+				coordinates: [
+					...prev.coordinates,
+					{
+						x: prev.coordinates[prev.coordinates.length - 1].x - xDiff,
+						y: prev.coordinates[prev.coordinates.length - 1].y - yDiff,
+					},
+				],
+				speed: prev.speed > 100 && increaseSpeed ? prev.speed - 20 : prev.speed,
+			}));
+		},
+		[snake],
+	);
 
 	const resetSnake = useCallback(() => {
 		setSnake({ coordinates: snakeDefaultCoordinates, direction: null, speed: 400 });
@@ -97,14 +100,17 @@ export const useSnake = (size: Size) => {
 			switch (event.key) {
 				case "w":
 				case "ArrowUp":
+					event.preventDefault();
 					moveSnake("up")();
 					break;
 				case "s":
 				case "ArrowDown":
+					event.preventDefault();
 					moveSnake("down")();
 					break;
 				case "a":
 				case "ArrowLeft":
+					event.preventDefault();
 					moveSnake("left")();
 					break;
 				case "d":
@@ -126,6 +132,10 @@ export const useSnake = (size: Size) => {
 			window.removeEventListener("keydown", handleKeyEvents);
 		};
 	}, [handleKeyEvents]);
+
+	useEffect(() => {
+		setSnake(prev => ({ ...prev, coordinates: snakeDefaultCoordinates }));
+	}, [size, snakeDefaultCoordinates]);
 
 	return [snake, moveSnake, increaseSnake, resetSnake] as const;
 };

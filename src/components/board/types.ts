@@ -17,3 +17,14 @@ export interface Snake {
 	direction: Direction | null;
 	speed: number;
 }
+
+interface AnswerCoordinatesItem {
+	degrees: number;
+	minutes: number;
+	seconds: number;
+}
+
+export interface AnswerCoordinates {
+	latitude: AnswerCoordinatesItem;
+	longitude: AnswerCoordinatesItem;
+}
