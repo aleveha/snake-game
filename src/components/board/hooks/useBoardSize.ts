@@ -1,21 +1,24 @@
 import { Size } from "@src/components/board/types";
 import { useEffect, useRef, useState } from "react";
-import { calculateWidth } from "@src/components/board/utils";
+import { calculateBoardWidth } from "@src/components/board/utils";
 
 export const useBoardSize = () => {
 	const parentRef = useRef<HTMLDivElement | null>(null);
-	const [size, setSize] = useState<Size>({ height: 600, width: 1000 });
+	const [boardSize, setBoardSize] = useState<Size>();
 
 	useEffect(() => {
-		if (parentRef?.current) {
-			const { height, width } = parentRef.current.getBoundingClientRect();
-			const newWidth = calculateWidth(width);
-			setSize(prev => ({
-				height: width > height ? prev.height : newWidth,
-				width: newWidth,
-			}));
-		}
+		setBoardSize(prev => {
+			if (parentRef?.current) {
+				const { width } = parentRef.current.getBoundingClientRect();
+				const newBoardWidth = calculateBoardWidth(width);
+				return {
+					height: window.innerWidth > window.innerHeight ? prev?.height ?? 600 : newBoardWidth,
+					width: newBoardWidth,
+				};
+			}
+			return undefined;
+		});
 	}, [parentRef]);
 
-	return [size, parentRef] as const;
+	return [boardSize, parentRef] as const;
 };

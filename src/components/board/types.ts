@@ -15,6 +15,7 @@ export interface Coordinates {
 export interface Snake {
 	coordinates: Coordinates[];
 	direction: Direction | null;
+	size: number;
 	speed: number;
 }
 

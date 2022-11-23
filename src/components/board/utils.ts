@@ -1,77 +1,30 @@
 import { AnswerCoordinates, Coordinates, Size, SNAKE_SIZE } from "@src/components/board/types";
 
-// Board
-export function clearBoard(context: CanvasRenderingContext2D | null, size: Size): void {
-	if (context) {
-		context.clearRect(0, 0, size.width, size.height);
-	}
+function getRandomNumber(max: number, snakeSize: number): number {
+	const random = Math.random() * (max - snakeSize);
+	return random - (random % snakeSize);
 }
 
-// Apple
-function getRandomNumber(max: number): number {
-	const random = Math.random() * (max - SNAKE_SIZE);
-	return random - (random % SNAKE_SIZE);
-}
-
-function getRandomCoordinates(width: number, height: number): Coordinates {
+export function getRandomCoordinates(size: Size, snakeSize: number): Coordinates {
 	return {
-		x: getRandomNumber(width - SNAKE_SIZE),
-		y: getRandomNumber(height - SNAKE_SIZE),
+		x: getRandomNumber(size.width - snakeSize, snakeSize),
+		y: getRandomNumber(size.height - snakeSize, snakeSize),
 	};
 }
 
-export function generateRandomApplePosition(size: Size, snake: Coordinates[]): Coordinates {
-	let newApple = getRandomCoordinates(size.width, size.height);
-
-	while (snake.some(({ x, y }) => x === newApple.x && y === newApple.y)) {
-		newApple = getRandomCoordinates(size.width, size.height);
-	}
-
-	return newApple;
-}
-
-export function drawApple(context: CanvasRenderingContext2D | null, object: Coordinates): void {
-	if (context) {
-		context.fillStyle = "#fb7185";
-		context.strokeStyle = "gray";
-		context.fillRect(object.x + SNAKE_SIZE, object.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
-		context.strokeRect(object.x + SNAKE_SIZE, object.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
-	}
-}
-
-export function isAppleEaten(apple: Coordinates, snakeHead: Coordinates): boolean {
-	return apple.x === snakeHead.x && apple.y === snakeHead.y;
-}
-
-// Snake
-export function drawSnake(context: CanvasRenderingContext2D | null, object: Coordinates[]): void {
-	if (context) {
-		object.forEach((pos: Coordinates, index) => {
-			if (index === 0) {
-				context.fillStyle = "#65a30d";
-			} else {
-				context.fillStyle = "#a3e635";
-			}
-			context.strokeStyle = "gray";
-			context.fillRect(pos.x + SNAKE_SIZE, pos.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
-			context.strokeRect(pos.x + SNAKE_SIZE, pos.y + SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE);
-		});
-	}
-}
-
-export function hasSnakeCollided(snake: Coordinates[], boardSize: Size): boolean {
+export function hasSnakeCollided(snake: Coordinates[], boardSize: Size, snakeSize: number): boolean {
 	return (
-		snake[0].x >= boardSize.width - SNAKE_SIZE ||
-		snake[0].x <= -2 * SNAKE_SIZE ||
-		snake[0].y <= -2 * SNAKE_SIZE ||
-		snake[0].y >= boardSize.height - SNAKE_SIZE ||
+		snake[0].x >= boardSize.width - snakeSize ||
+		snake[0].x <= -2 * snakeSize ||
+		snake[0].y <= -2 * snakeSize ||
+		snake[0].y >= boardSize.height - snakeSize ||
 		snake.findIndex(
 			(pos: Coordinates, index: number) => pos.x === snake[0].x && pos.y === snake[0].y && index !== 0,
 		) !== -1
 	);
 }
 
-export function calculateWidth(width: number): number {
+export function calculateBoardWidth(width: number): number {
 	let newWidth = width;
 	while (newWidth % SNAKE_SIZE !== 0) {
 		newWidth -= 1;
@@ -79,7 +32,6 @@ export function calculateWidth(width: number): number {
 	return newWidth;
 }
 
-// Answer coordinates
 export function answerCoordinatesToString(coordinates: AnswerCoordinates): string {
 	const { latitude, longitude } = coordinates;
 

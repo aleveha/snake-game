@@ -1,14 +1,19 @@
 import { Coordinates, Direction, Size, Snake, SNAKE_SIZE } from "@src/components/board/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { calculateWidth } from "@src/components/board/utils";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { calculateBoardWidth } from "@src/components/board/utils";
 
 export const useSnake = (size: Size) => {
-	const snakeDefaultCoordinates: Coordinates[] = useMemo(
-		() => [{ x: calculateWidth(size.width / 2), y: calculateWidth(size.height / 2) }],
+	const snakeDefault: Snake = useMemo(
+		() => ({
+			coordinates: [{ x: calculateBoardWidth(size.width / 2), y: calculateBoardWidth(size.height / 2) }],
+			direction: null,
+			size: size.width === size.height ? SNAKE_SIZE / 2 : SNAKE_SIZE,
+			speed: 400,
+		}),
 		[size],
 	);
 
-	const [snake, setSnake] = useState<Snake>({ coordinates: snakeDefaultCoordinates, direction: null, speed: 400 });
+	const [snake, setSnake] = useState<Snake>(snakeDefault);
 
 	const makeMovement = useCallback(
 		(dx = 0, dy = 0): Coordinates[] => {
@@ -28,26 +33,26 @@ export const useSnake = (size: Size) => {
 	const moveSnake = useCallback(
 		(newDirection: Direction) => () => {
 			if (newDirection === "right" && snake.direction !== "left") {
-				setSnake(prev => ({ ...prev, coordinates: makeMovement(SNAKE_SIZE, 0), direction: "right" }));
+				setSnake(prev => ({ ...prev, coordinates: makeMovement(snake.size, 0), direction: "right" }));
 				return;
 			}
 
 			if (newDirection === "left" && snake.direction !== "right") {
-				setSnake(prev => ({ ...prev, coordinates: makeMovement(-SNAKE_SIZE, 0), direction: "left" }));
+				setSnake(prev => ({ ...prev, coordinates: makeMovement(-snake.size, 0), direction: "left" }));
 				return;
 			}
 
 			if (newDirection === "up" && snake.direction !== "down") {
-				setSnake(prev => ({ ...prev, coordinates: makeMovement(0, -SNAKE_SIZE), direction: "up" }));
+				setSnake(prev => ({ ...prev, coordinates: makeMovement(0, -snake.size), direction: "up" }));
 				return;
 			}
 
 			if (newDirection === "down" && snake.direction !== "up") {
-				setSnake(prev => ({ ...prev, coordinates: makeMovement(0, SNAKE_SIZE), direction: "down" }));
+				setSnake(prev => ({ ...prev, coordinates: makeMovement(0, snake.size), direction: "down" }));
 				return;
 			}
 		},
-		[snake.direction, makeMovement],
+		[snake.direction, snake.size, makeMovement],
 	);
 
 	const increaseSnake = useCallback(
@@ -59,16 +64,16 @@ export const useSnake = (size: Size) => {
 			if (coordinates.length === 1) {
 				switch (direction) {
 					case "left":
-						xDiff = -SNAKE_SIZE;
+						xDiff = -snake.size;
 						break;
 					case "right":
-						xDiff = SNAKE_SIZE;
+						xDiff = snake.size;
 						break;
 					case "up":
-						yDiff = -SNAKE_SIZE;
+						yDiff = -snake.size;
 						break;
 					case "down":
-						yDiff = SNAKE_SIZE;
+						yDiff = snake.size;
 						break;
 				}
 			} else {
@@ -92,50 +97,46 @@ export const useSnake = (size: Size) => {
 	);
 
 	const resetSnake = useCallback(() => {
-		setSnake({ coordinates: snakeDefaultCoordinates, direction: null, speed: 400 });
-	}, [snakeDefaultCoordinates]);
+		setSnake(snakeDefault);
+	}, [snakeDefault]);
 
-	const handleKeyEvents = useCallback(
-		(event: KeyboardEvent) => {
+	const latestMoveSnake = useRef(moveSnake);
+	latestMoveSnake.current = moveSnake;
+
+	useEffect(() => {
+		const handler = (event: KeyboardEvent) => {
 			switch (event.key) {
 				case "w":
 				case "ArrowUp":
 					event.preventDefault();
-					moveSnake("up")();
+					latestMoveSnake.current("up")();
 					break;
 				case "s":
 				case "ArrowDown":
 					event.preventDefault();
-					moveSnake("down")();
+					latestMoveSnake.current("down")();
 					break;
 				case "a":
 				case "ArrowLeft":
 					event.preventDefault();
-					moveSnake("left")();
+					latestMoveSnake.current("left")();
 					break;
 				case "d":
 				case "ArrowRight":
 					event.preventDefault();
-					moveSnake("right")();
+					latestMoveSnake.current("right")();
 					break;
 			}
-		},
-		[moveSnake],
-	);
+		};
 
-	useEffect(() => {
-		window.addEventListener("keypress", handleKeyEvents);
-		window.addEventListener("keydown", handleKeyEvents);
+		window.addEventListener("keypress", handler);
+		window.addEventListener("keydown", handler);
 
 		return () => {
-			window.removeEventListener("keypress", handleKeyEvents);
-			window.removeEventListener("keydown", handleKeyEvents);
+			window.removeEventListener("keypress", handler);
+			window.removeEventListener("keydown", handler);
 		};
-	}, [handleKeyEvents]);
-
-	useEffect(() => {
-		setSnake(prev => ({ ...prev, coordinates: snakeDefaultCoordinates }));
-	}, [size, snakeDefaultCoordinates]);
+	}, [latestMoveSnake]);
 
 	return [snake, moveSnake, increaseSnake, resetSnake] as const;
 };
